@@ -1,6 +1,6 @@
 import { BigInt } from "@graphprotocol/graph-ts"
 import { Contract, Approval, Transfer } from "../generated/Contract/Contract"
-import { ExampleEntity } from "../generated/schema"
+import { ExampleEntity, TransferEntity } from "../generated/schema"
 
 export function handleApproval(event: Approval): void {
   // Entities can be loaded from the store using a string ID; this ID
@@ -56,4 +56,13 @@ export function handleApproval(event: Approval): void {
   // - contract.transferFrom(...)
 }
 
-export function handleTransfer(event: Transfer): void {}
+export function handleTransfer(event: Transfer): void {
+  let entity = TransferEntity.load(event.transaction.from.toHex())
+  if (!entity) {
+    entity = new TransferEntity(event.transaction.from.toHex())
+    entity.from = event.params.from
+  }
+  entity.from = event.params.from
+  entity.to = event.params.to
+  entity.save()
+}
